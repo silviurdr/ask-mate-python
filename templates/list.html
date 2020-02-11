@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+
+<body>
+
+    <h1 class="app-title">Ask Mate</h1>
+
+    <div class="main-content">
+        <table class="questions-table">
+            <thead>
+                <tr class="headers">
+                    {% for heading in table_heading %}
+                    <td class="heading">{{heading}}</td>
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for question in all_questions: %}
+                <tr>
+                    {% for key, value in question.items(): %}
+                    {% if key != "title" %}
+                    <td>{{value}}</td>
+                    {% else: %}
+                    <td style="min-width: 300px"><a class="user-question-link" href="#">{{value}}</a></td>
+                    {% endif %}
+                    {% endfor%}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+
+</body>
+
+</html>
