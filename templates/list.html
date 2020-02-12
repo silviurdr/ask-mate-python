@@ -10,7 +10,9 @@
 
 <body>
 
-    <h1 class="app-title">Ask Mate</h1>
+    <a href="/">
+        <h1 class="app-title">Ask Mate</h1>
+    </a>
 
     <div class="main-content">
         <table class="questions-table">
@@ -29,7 +31,8 @@
                     {% if key != "title" %}
                     <td>{{value}}</td>
                     {% else: %}
-                    <td style="min-width: 300px"><a class="user-question-link" href="#">{{value}}</a></td>
+                    <td style="min-width: 300px"><a class="user-question-link"
+                            href="{{url_for('question', question_id=question['id'])}}">{{value}}</a></td>
                     {% endif %}
                     {% endfor%}
                 </tr>

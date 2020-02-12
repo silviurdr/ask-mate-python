@@ -23,8 +23,9 @@ td {
   text-align: center;
 }
 
-.main-container {
-  text-align: center;
+.main-content {
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
 .questions-table {
@@ -50,6 +51,12 @@ td {
   text-decoration: underline;
 }
 
-.user-question-link:hover {
-  
+.add-question-button {
+  color: white;
+  background-color: #00aaa0;
+  font-family: Roboto;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-weight: bold;
+  font-size: 1em;
 }
