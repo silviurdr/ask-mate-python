@@ -15,6 +15,22 @@
     </a>
 
     <div class="main-content">
+
+        <div class="sorting-area">
+            <form action="/list" method="post">
+                <select id="sorting-headers" name="sorting-headers">
+                    {% for heading in sorting_headers %}
+                    <option value="{{heading}}">{{heading}}</option>
+                    {% endfor %}
+                </select>
+                <select id="sorting-order" name='sorting-order'>
+                    <option value="ascending">ascending</option>
+                    <option value="descending">descending</option>
+                </select>
+                <button id="sort" name="sort">sort questions</button>
+            </form>
+        </div>
+
         <table class="questions-table">
             <thead>
                 <tr class="headers">

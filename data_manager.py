@@ -17,7 +17,7 @@ def get_all_questions():
 
     user_questions = []
 
-    with open('sample_data/question.csv') as csv_file:
+    with open('sample_data/question.csv', 'r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
 
         for row in csv_reader:
@@ -50,20 +50,15 @@ def convert_line_breaks_to_br(original_str):
     return '<br>'.join(original_str.split('\n'))
 
 
-def sort_questions():
+def sort_questions(sorting_header, reverse_order=True):
     '''
     Returns a dictionary with the questions sorted by submitted time
     '''
-    submission_times = []
+
     all_questions = get_all_questions()
-    for question in all_questions:
-        submission_times.append(question['submission_time'])
-    sorted_times = sorted(submission_times, reverse=True)
-    sorted_questions = []
-    for time in sorted_times:
-        for question in all_questions:
-            if question['submission_time'] == time:
-                sorted_questions.append(question)
+    sorted_questions = sorted(all_questions,
+                              key=lambda dict: int(dict[sorting_header]), reverse=reverse_order)
+
     return sorted_questions
 
 
@@ -80,11 +75,16 @@ def get_question_by_id(question_id):
 def get_answer_by_id(answer_id):
     all_answers = get_all_answers()
 
-    for answer in all_answers:
-        if answer_id == answer['id']:
-            return answer
+    requested_answers = []
 
-    return None
+    for answer in all_answers:
+        if answer_id == answer['question_id']:
+            requested_answers.append(answer)
+    if len(requested_answers) == 0:
+        return None
+
+    else:
+        return requested_answers
 
 
 def add_question_to_file(new_question):

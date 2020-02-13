@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+
+<body>
+
+    <a href="/">
+        <h1 class="app-title">Ask Mate</h1>
+    </a>
+
+    <div class="main-content">
+
+
+        <div class="question-form-container">
+            <h1 class="add-question-header">add answer</h1>
+            <form method="post">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" value="{{user_question['title']}}"></input>
+                <br />
+                <label for="message">Message:</label>
+                <br />
+                <textarea id="message" name="message" rows="4" cols="60">{{user_question['message']}}</textarea>
+                <br />
+                <br />
+                <button class="add-story-button" type="submit">add new user story</button>
+            </form>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

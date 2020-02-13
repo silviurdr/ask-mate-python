@@ -17,15 +17,21 @@
     <div class="main-content">
 
         <h1>{{user_question['title']}}</h1>
-        <p>Asked on: {{user_question['submission_time']}} | Views: {{user_question['view_number']}} | Votes:
-            {{user_question['vote_number']}}</p>
+        <div>
+            <p>Asked on: {{user_question['submission_time']}} | Views: {{user_question['view_number']}} | Votes:
+                {{user_question['vote_number']}}</p><a style="margin-right: 20px" href="{{question_id}}/edit">Edit
+                Question</a><a href="{{question_id}}/delete">Delete Question</a>
+        </div>
         <hr />
         <h3>{{user_question['message']}}</h3>
-
+        </br>
+        <h2>The answers for this question:</h2>
         {% if empty == True: %}
         <h3>There is no answer for this question yet.</h3>
         {% else: %}
-        <h3>{{user_answers['message']}}</h3>
+        {% for answer in user_answers %}
+        <h3>{{answer['message']}}</h3>
+        {% endfor %}
         {% endif %}
 
         <button onclick="location.href='/question/{{ question_id }}/new-answer'">POST ANSWER</button>
