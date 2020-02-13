@@ -31,7 +31,7 @@
                     {% if key != "title" %}
                     <td>{{value}}</td>
                     {% else: %}
-                    <td style="min-width: 300px"><a class="user-question-link"
+                    <td style="min-width: 150px"><a class="user-question-link"
                             href="{{url_for('question', question_id=question['id'])}}">{{value}}</a></td>
                     {% endif %}
                     {% endfor%}
@@ -39,6 +39,8 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <div class="add-question"><a class="add-question-link" href="/add-question">add new user story</a></div>
 
     </div>
 

@@ -4,6 +4,9 @@ import csv
 DATA_HEADER = ['id', 'submission_time', 'view_number',
                "vote_number", "title", "message", "image"]
 
+ANSWER_FIELDNAMES = ["id", "submission_time",
+                     "vote_number", "question_id", "message", "image"]
+
 
 def get_all_questions():
     '''
@@ -84,19 +87,48 @@ def get_answer_by_id(answer_id):
     return None
 
 
-def add_question_to_file(question, append=True):
+def add_question_to_file(new_question):
 
-    existing_data = get_all_questions()
+    all_questions = get_all_questions()
 
-    with open('question.csv', 'a') as csv_file:
+    with open('sample_data/question.csv', 'a') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=DATA_HEADER)
-        csv_writer.writeheader()
-        for row in existing_data:
-            if not append:
-                if row['id'] == question['id']:
-                    row = question
+        if all_questions is False:
+            csv_writer.writeheader()
 
-            csv_writer.writerow()
+        csv_writer.writerow(new_question)
 
-        if append:
-            csv_writer.writerow(question)
+
+def generate_new_id():
+
+    all_stories = get_all_questions()
+
+    if len(all_stories) == 0:
+        question_id = 1
+    else:
+        question_id = str(int(all_stories[-1]['id']) + 1)
+
+    return question_id
+
+
+def generate_new_id_for_answer():
+
+    all_answers = get_all_answers()
+
+    if len(all_answers) == 0:
+        answer_id = 1
+    else:
+        answer_id = str(int(all_answers[-1]['id']) + 1)
+
+    return answer_id
+
+
+def add_answer_to_file(answer):
+
+    all_answers = get_all_answers()
+
+    with open('sample_data/answer.csv', 'a') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_FIELDNAMES)
+        if all_answers is False:
+            csv_writer.writeheader()
+        csv_writer.writerow(answer)
