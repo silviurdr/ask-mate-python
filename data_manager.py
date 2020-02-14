@@ -20,8 +20,7 @@ def get_all_questions():
     with open('sample_data/question.csv', 'r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
 
-        for row in csv_reader:
-            question = dict(row)
+        for question in csv_reader:
             user_questions.append(question)
     return user_questions
 

@@ -30,6 +30,7 @@ td {
 
 .questions-table {
   margin: 0 auto;
+  min-width: 1600px;
 }
 
 .headers {

@@ -30,7 +30,11 @@
         <h3>There is no answer for this question yet.</h3>
         {% else: %}
         {% for answer in user_answers %}
-        <h3>{{answer['message']}}</h3>
+        <div>
+            <h3 style="display:inline-block">{{answer['message']}}</h3><a style="margin-left: 2em"
+                href="/answer/{{ question_id }}/{{ answer['id'] }}/delete">Delete
+                Answer</a>
+        </div>
         {% endfor %}
         {% endif %}
 

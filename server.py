@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for
 
 import data_manager as dmg
 from datetime import datetime
-from datetime import datetime
 import csv
 
 app = Flask('__main__')
@@ -85,9 +84,10 @@ def answer(question_id):
     if request.method == 'POST':
 
         now = datetime.now()
+        new_answer_id = dmg.generate_new_id_for_answer()
 
         answer = {
-            "id": question_id,
+            "id": new_answer_id,
             "submission_time": now.strftime("%H:%M:%S"),
             'vote_number': "0",
             'question_id': question_id,
@@ -138,11 +138,32 @@ def delete_questions(question_id):
     DATA_HEADER = ['id', 'submission_time', 'view_number',
                    "vote_number", "title", "message", "image"]
 
+    ANSWER_HEADERS = ['id', 'submission_time',
+                      'vote_number', 'question_id', 'message', 'image']
+
     all_user_questions = dmg.get_all_questions()
+
+    new_all_user_questions = []
 
     for question in all_user_questions:
         if question['id'] == question_id:
-            all_user_questions.remove(question)
+            new_all_user_questions.remove(question)
+
+    all_user_answers = dmg.get_all_answers()
+
+    new_all_user_answers = []
+
+    for answer in all_user_answers:
+        if int(answer['question_id']) != int(question_id):
+            new_all_user_answers.append(answer)
+
+    print(new_all_user_answers)
+
+    with open('sample_data/answer.csv', 'w') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
+        csv_writer.writeheader()
+        for answer in new_all_user_answers:
+            csv_writer.writerow(answer)
 
     with open('sample_data/question.csv', 'w') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=DATA_HEADER)
@@ -151,6 +172,28 @@ def delete_questions(question_id):
             csv_writer.writerow(question)
 
     return redirect('/',)
+
+
+@app.route('/answer/<question_id>/<answer_id>/delete')
+def delete_answer(question_id, answer_id):
+
+    ANSWER_HEADERS = ['id', 'submission_time',
+                      'vote_number', 'question_id', 'message', 'image']
+    all_user_answers = dmg.get_all_answers()
+
+    new_all_user_answers = []
+
+    for answer in all_user_answers:
+        if answer['id'] != answer_id:
+            new_all_user_answers.append(answer)
+    print(new_all_user_answers)
+
+    with open('sample_data/answer.csv', 'w') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
+        csv_writer.writeheader()
+        for answer in new_all_user_answers:
+            csv_writer.writerow(answer)
+    return redirect(f'/question/{question_id}')
 
 
 if __name__ == '__main__':
