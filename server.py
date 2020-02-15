@@ -157,8 +157,6 @@ def delete_questions(question_id):
         if int(answer['question_id']) != int(question_id):
             new_all_user_answers.append(answer)
 
-    print(new_all_user_answers)
-
     with open('sample_data/answer.csv', 'w') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
         csv_writer.writeheader()
@@ -186,13 +184,52 @@ def delete_answer(question_id, answer_id):
     for answer in all_user_answers:
         if answer['id'] != answer_id:
             new_all_user_answers.append(answer)
-    print(new_all_user_answers)
 
     with open('sample_data/answer.csv', 'w') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
         csv_writer.writeheader()
         for answer in new_all_user_answers:
             csv_writer.writerow(answer)
+    return redirect(f'/question/{question_id}')
+
+
+@app.route('/question/<question_id>/vote-up')
+def vote_up_questions(question_id):
+
+    DATA_HEADER = ['id', 'submission_time', 'view_number',
+                   "vote_number", "title", "message", "image"]
+    all_questions = dmg.get_all_questions()
+
+    for question in all_questions:
+        if question['id'] == question_id:
+            question['vote_number'] = int(question['vote_number']) + 1
+
+    with open('sample_data/question.csv', 'w') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=DATA_HEADER)
+        csv_writer.writeheader()
+        for question in all_questions:
+            csv_writer.writerow(question)
+
+    return redirect(f'/question/{question_id}')
+
+
+@app.route('/question/<question_id>/vote-down')
+def vote_down_questions(question_id):
+
+    DATA_HEADER = ['id', 'submission_time', 'view_number',
+                   "vote_number", "title", "message", "image"]
+    all_questions = dmg.get_all_questions()
+
+    for question in all_questions:
+        if question['id'] == question_id:
+            question['vote_number'] = int(question['vote_number']) - 1
+
+    with open('sample_data/question.csv', 'w') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=DATA_HEADER)
+        csv_writer.writeheader()
+        for question in all_questions:
+            csv_writer.writerow(question)
+
     return redirect(f'/question/{question_id}')
 
 

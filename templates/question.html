@@ -16,29 +16,30 @@
 
     <div class="main-content">
 
-        <h1>{{user_question['title']}}</h1>
-        <div>
-            <p>Asked on: {{user_question['submission_time']}} | Views: {{user_question['view_number']}} | Votes:
-                {{user_question['vote_number']}}</p><a style="margin-right: 20px" href="{{question_id}}/edit">Edit
-                Question</a><a href="{{question_id}}/delete">Delete Question</a>
-        </div>
-        <hr />
-        <h3>{{user_question['message']}}</h3>
-        </br>
-        <h2>The answers for this question:</h2>
-        {% if empty == True: %}
-        <h3>There is no answer for this question yet.</h3>
-        {% else: %}
-        {% for answer in user_answers %}
-        <div>
-            <h3 style="display:inline-block">{{answer['message']}}</h3><a style="margin-left: 2em"
-                href="/answer/{{ question_id }}/{{ answer['id'] }}/delete">Delete
-                Answer</a>
-        </div>
-        {% endfor %}
-        {% endif %}
+        <h1>{{user_question['title']}}</h1> <a href="/question/{{question_id}}/vote-up">Vote Up</a> <a
+            href="/question/{{question_id}}/vote-down">Vote Down</a>
+        <p>Asked on:
+            {{user_question['submission_time']}} | Views: {{user_question['view_number']}} | Votes:
+            {{user_question['vote_number']}}</p><a style="margin-right: 20px" href="{{question_id}}/edit">Edit
+            Question</a><a href="{{question_id}}/delete">Delete Question</a>
+    </div>
+    <hr />
+    <h3>{{user_question['message']}}</h3>
+    </br>
+    <h2>The answers for this question:</h2>
+    {% if empty == True: %}
+    <h3>There is no answer for this question yet.</h3>
+    {% else: %}
+    {% for answer in user_answers %}
+    <div>
+        <h3 style="display:inline-block">{{answer['message']}}</h3><a style="margin-left: 2em"
+            href="/answer/{{ question_id }}/{{ answer['id'] }}/delete">Delete
+            Answer</a>
+    </div>
+    {% endfor %}
+    {% endif %}
 
-        <button onclick="location.href='/question/{{ question_id }}/new-answer'">POST ANSWER</button>
+    <button onclick="location.href='/question/{{ question_id }}/new-answer'">POST ANSWER</button>
 
     </div>
 
