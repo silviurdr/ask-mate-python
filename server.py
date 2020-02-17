@@ -40,11 +40,14 @@ def home():
 def question(question_id: int):
 
     user_question = dmg.get_question_by_id(question_id)
+    print(user_question)
     user_answers = dmg.get_answer_by_id(question_id)
+    print(user_answers)
 
     empty = False
 
-    if user_answers == None:
+    if user_answers is None:
+
         empty = True
 
     return render_template('question.html', user_question=user_question, user_answers=user_answers,
@@ -146,16 +149,19 @@ def delete_questions(question_id):
     new_all_user_questions = []
 
     for question in all_user_questions:
-        if question['id'] == question_id:
-            new_all_user_questions.remove(question)
+        if int(question['id']) != int(question_id):
+            new_all_user_questions.append(question)
 
     all_user_answers = dmg.get_all_answers()
+    print(all_user_answers)
 
     new_all_user_answers = []
 
     for answer in all_user_answers:
         if int(answer['question_id']) != int(question_id):
             new_all_user_answers.append(answer)
+
+    print(new_all_user_answers)
 
     with open('sample_data/answer.csv', 'w') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
@@ -166,7 +172,7 @@ def delete_questions(question_id):
     with open('sample_data/question.csv', 'w') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=DATA_HEADER)
         csv_writer.writeheader()
-        for question in all_user_questions:
+        for question in new_all_user_questions:
             csv_writer.writerow(question)
 
     return redirect('/',)
@@ -231,6 +237,48 @@ def vote_down_questions(question_id):
             csv_writer.writerow(question)
 
     return redirect(f'/question/{question_id}')
+
+
+@app.route('/answer/<question_id>/<answer_id>/vote-up')
+def vote_up_answers(answer_id, question_id):
+
+    ANSWER_HEADERS = ['id', 'submission_time',
+                      'vote_number', 'question_id', 'message', 'image']
+
+    all_answers = dmg.get_all_answers()
+
+    for answer in all_answers:
+        if answer['id'] == answer_id:
+            answer['vote_number'] = int(answer['vote_number']) + 1
+
+    with open('sample_data/answer.csv', 'w') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
+        csv_writer.writeheader()
+        for answer in all_answers:
+            csv_writer.writerow(answer)
+
+    return redirect(f"/question/{question_id}")
+
+
+@app.route('/answer/<question_id>/<answer_id>/vote-down')
+def vote_down_answers(answer_id, question_id):
+
+    ANSWER_HEADERS = ['id', 'submission_time',
+                      'vote_number', 'question_id', 'message', 'image']
+
+    all_answers = dmg.get_all_answers()
+
+    for answer in all_answers:
+        if answer['id'] == answer_id:
+            answer['vote_number'] = int(answer['vote_number']) - 1
+
+    with open('sample_data/answer.csv', 'w') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
+        csv_writer.writeheader()
+        for answer in all_answers:
+            csv_writer.writerow(answer)
+
+    return redirect(f"/question/{question_id}")
 
 
 if __name__ == '__main__':

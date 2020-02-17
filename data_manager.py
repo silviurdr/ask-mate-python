@@ -76,13 +76,13 @@ def get_answer_by_id(answer_id):
 
     requested_answers = []
 
-    for answer in all_answers:
-        if answer_id == answer['question_id']:
-            requested_answers.append(answer)
-    if len(requested_answers) == 0:
+    if len(all_answers) == 0:
         return None
 
     else:
+        for answer in all_answers:
+            if answer_id == answer['question_id']:
+                requested_answers.append(answer)
         return requested_answers
 
 
@@ -115,7 +115,7 @@ def generate_new_id_for_answer():
     all_answers = get_all_answers()
 
     if len(all_answers) == 0:
-        answer_id = 1
+        return 1
     else:
         answer_id = str(int(all_answers[-1]['id']) + 1)
 
@@ -125,9 +125,10 @@ def generate_new_id_for_answer():
 def add_answer_to_file(answer):
 
     all_answers = get_all_answers()
+    print("ce e all answers baaaa?", bool(all_answers))
 
     with open('sample_data/answer.csv', 'a') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_FIELDNAMES)
-        if all_answers is False:
+        if bool(all_answers) is False:
             csv_writer.writeheader()
         csv_writer.writerow(answer)
