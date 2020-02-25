@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 
 import data_manager as dmg
 from datetime import datetime
+import time, calendar, os
 import csv
 
 app = Flask('__main__')
@@ -40,9 +41,7 @@ def home():
 def question(question_id: int):
 
     user_question = dmg.get_question_by_id(question_id)
-    print(user_question)
     user_answers = dmg.get_answer_by_id(question_id)
-    print(user_answers)
 
     empty = False
 
@@ -61,12 +60,11 @@ def add_question():
 
         question_id = dmg.generate_new_id()
 
-        dt = datetime.today()
-        post_time = dt.timestamp()
+        submission_time =  datetime.utcfromtimestamp(int(calendar.timegm(time.gmtime())) + 7200).strftime('%Y-%m-%d %H:%M:%S')
 
         user_question = {
             'id': question_id,
-            'submission_time': int(post_time),
+            'submission_time': submission_time,
             'view_number': 0,
             'vote_number': 0,
             'title': request.form['title'],
@@ -74,7 +72,7 @@ def add_question():
             'image': ''
         }
 
-        dmg.add_question_to_file(user_question)
+        dmg.add_question_to_database(user_question)
         return redirect(url_for('question', question_id=question_id))
 
     return render_template('add-question.html')
@@ -86,19 +84,20 @@ def answer(question_id):
     user_question = dmg.get_question_by_id('question_id')
     if request.method == 'POST':
 
-        now = datetime.now()
-        new_answer_id = dmg.generate_new_id_for_answer()
+        submission_time =  datetime.utcfromtimestamp(int(calendar.timegm(time.gmtime())) + 7200)\
+            .strftime('%Y-%m-%d %H:%M:%S')
+        new_answer_id = dmg.get_next_id('answer')
 
         answer = {
             "id": new_answer_id,
-            "submission_time": now.strftime("%H:%M:%S"),
+            "submission_time": submission_time,
             'vote_number': "0",
             'question_id': question_id,
             'message': request.form['message'],
             'image': ''
         }
 
-        dmg.add_answer_to_file(answer)
+        dmg.add_answer_to_database(answer)
 
         return redirect(f"/question/{question_id}")
 
@@ -108,29 +107,17 @@ def answer(question_id):
 @app.route('/question/<question_id>/edit', methods=['GET', 'POST'])
 def edit(question_id: int):
 
-    user_question = dmg.get_question_by_id(question_id)
-    DATA_HEADER = ['id', 'submission_time', 'view_number',
-                   "vote_number", "title", "message", "image"]
-
     if request.method == "POST":
-        user_question['title'] = request.form['title']
-        user_question['message'] = request.form['message']
+        user_question = dmg.get_all_questions()
+        user_question[0]['title'] = request.form['title']
+        user_question[0]['message'] = request.form['message']
 
-        all_user_questions = dmg.get_all_questions()
-
-        for question in all_user_questions:
-            if question['id'] == question_id:
-                question['title'] = user_question['title']
-                question['message'] = user_question['message']
-
-        with open('sample_data/question.csv', 'w') as csv_file:
-            csv_writer = csv.DictWriter(csv_file, fieldnames=DATA_HEADER)
-            csv_writer.writeheader()
-            for question in all_user_questions:
-                csv_writer.writerow(question)
+        dmg.edit_question(question_id, user_question)
 
         return render_template('question.html', user_question=user_question,
                                question_id=question_id)
+
+    user_question = dmg.get_question_by_id(question_id)
 
     return render_template('edit.html', question_id=question_id, user_question=user_question)
 
@@ -138,64 +125,14 @@ def edit(question_id: int):
 @app.route('/question/<question_id>/delete')
 def delete_questions(question_id):
 
-    DATA_HEADER = ['id', 'submission_time', 'view_number',
-                   "vote_number", "title", "message", "image"]
-
-    ANSWER_HEADERS = ['id', 'submission_time',
-                      'vote_number', 'question_id', 'message', 'image']
-
-    all_user_questions = dmg.get_all_questions()
-
-    new_all_user_questions = []
-
-    for question in all_user_questions:
-        if int(question['id']) != int(question_id):
-            new_all_user_questions.append(question)
-
-    all_user_answers = dmg.get_all_answers()
-    print(all_user_answers)
-
-    new_all_user_answers = []
-
-    for answer in all_user_answers:
-        if int(answer['question_id']) != int(question_id):
-            new_all_user_answers.append(answer)
-
-    print(new_all_user_answers)
-
-    with open('sample_data/answer.csv', 'w') as csv_file:
-        csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
-        csv_writer.writeheader()
-        for answer in new_all_user_answers:
-            csv_writer.writerow(answer)
-
-    with open('sample_data/question.csv', 'w') as csv_file:
-        csv_writer = csv.DictWriter(csv_file, fieldnames=DATA_HEADER)
-        csv_writer.writeheader()
-        for question in new_all_user_questions:
-            csv_writer.writerow(question)
-
+    dmg.delete_question(question_id)
     return redirect('/',)
 
 
 @app.route('/answer/<question_id>/<answer_id>/delete')
 def delete_answer(question_id, answer_id):
 
-    ANSWER_HEADERS = ['id', 'submission_time',
-                      'vote_number', 'question_id', 'message', 'image']
-    all_user_answers = dmg.get_all_answers()
-
-    new_all_user_answers = []
-
-    for answer in all_user_answers:
-        if answer['id'] != answer_id:
-            new_all_user_answers.append(answer)
-
-    with open('sample_data/answer.csv', 'w') as csv_file:
-        csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_HEADERS)
-        csv_writer.writeheader()
-        for answer in new_all_user_answers:
-            csv_writer.writerow(answer)
+    dmg.delete_answer(answer_id)
     return redirect(f'/question/{question_id}')
 
 

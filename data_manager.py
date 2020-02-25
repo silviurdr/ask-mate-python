@@ -1,5 +1,7 @@
 import csv
+import connection
 
+from datetime import datetime
 
 DATA_HEADER = ['id', 'submission_time', 'view_number',
                "vote_number", "title", "message", "image"]
@@ -8,41 +10,51 @@ ANSWER_FIELDNAMES = ["id", "submission_time",
                      "vote_number", "question_id", "message", "image"]
 
 
-def get_all_questions():
+@connection.connection_handler
+def get_all_questions(cursor):
     '''
-    param question_id:
-        If given it will act as a filter and return the dictionary of a specific Question
-        If not give it will return a list of dictionaries with all the given details
-    '''
-
-    user_questions = []
-
-    with open('sample_data/question.csv', 'r') as csv_file:
-        csv_reader = csv.DictReader(csv_file)
-
-        for question in csv_reader:
-            user_questions.append(question)
-    return user_questions
-
-
-def get_all_answers():
-    '''
-    param question_id:
-        If given it will act as a filter and return the dictionary of a specific Question
-        If not give it will return a list of dictionaries with all the given details
+    extracts all the data from the questions table
     '''
 
-    user_answers = []
+    cursor.execute("""
+    SELECT * FROM question
+    """)
+    questions = cursor.fetchall()
+    return questions
 
-    with open('sample_data/answer.csv') as csv_file:
-        csv_reader = csv.DictReader(csv_file)
+@connection.connection_handler
+def get_all_answers(cursor):
+    '''
+    extracts all the data from the answer table
+    '''
 
-        for row in csv_reader:
-            answer = dict(row)
+    cursor.execute("""
+    SELECT * from answer
+        """)
+    answers = cursor.fetchall()
+    return answers
 
-            user_answers.append(answer)
+@connection.connection_handler
+def get_all_comments(cursor):
+    '''
+    extracts all the data from the comment table
+    '''
+    cursor.execute("""
+    SELECT * from comment
+    """)
+    comments = cursor.fetchall()
+    return comments
 
-    return user_answers
+@connection.connection_handler
+def get_all_tags(cursor):
+    '''
+    extracts all the data from tag table
+    '''
+    cursor.execute("""
+    SELECT * from tag
+    """)
+    tags = cursor.fetchall()
+    return tags
 
 
 def convert_line_breaks_to_br(original_str):
@@ -56,7 +68,7 @@ def sort_questions(sorting_header, reverse_order=True):
 
     all_questions = get_all_questions()
     sorted_questions = sorted(all_questions,
-                              key=lambda dict: int(dict[sorting_header]), reverse=reverse_order)
+                              key=lambda dict: dict[sorting_header], reverse=reverse_order)
 
     return sorted_questions
 
@@ -81,21 +93,19 @@ def get_answer_by_id(answer_id):
 
     else:
         for answer in all_answers:
-            if answer_id == answer['question_id']:
+            if int(answer_id) == int(answer['question_id']):
                 requested_answers.append(answer)
         return requested_answers
 
+@connection.connection_handler
+def add_question_to_database(cursor, user_question):
 
-def add_question_to_file(new_question):
-
-    all_questions = get_all_questions()
-
-    with open('sample_data/question.csv', 'a') as csv_file:
-        csv_writer = csv.DictWriter(csv_file, fieldnames=DATA_HEADER)
-        if all_questions is False:
-            csv_writer.writeheader()
-
-        csv_writer.writerow(new_question)
+    cursor.execute("""
+    INSERT INTO question
+    (id, submission_time, view_number, vote_number, title, message, image)
+    VALUES ({0}, '{1}', {2}, {3}, '{4}', '{5}', '{6}')
+    """.format(user_question['id'], user_question['submission_time'], user_question['view_number'],
+               user_question['vote_number'], user_question['title'], user_question['message'], user_question['image']))
 
 
 def generate_new_id():
@@ -121,14 +131,46 @@ def generate_new_id_for_answer():
 
     return answer_id
 
+@connection.connection_handler
+def add_answer_to_database(cursor, answer):
 
-def add_answer_to_file(answer):
+    cursor.execute("""
+    INSERT INTO answer
+    (id, submission_time, vote_number, question_id, message, image)
+    VALUES ({0}, '{1}', {2}, {3}, '{4}', '{5}')
+    """.format(answer['id'], answer['submission_time'], answer['vote_number'], answer['question_id'],
+               answer['message'], answer['image']))
 
-    all_answers = get_all_answers()
-    print("ce e all answers baaaa?", bool(all_answers))
 
-    with open('sample_data/answer.csv', 'a') as csv_file:
-        csv_writer = csv.DictWriter(csv_file, fieldnames=ANSWER_FIELDNAMES)
-        if bool(all_answers) is False:
-            csv_writer.writeheader()
-        csv_writer.writerow(answer)
+
+@connection.connection_handler
+def get_next_id(cursor, table):
+    cursor.execute("""
+        SELECT id FROM {0} ORDER BY id DESC LIMIT 1;
+    """.format(table))
+    last_id = cursor.fetchall()
+    next_id = last_id[0]['id'] + 1
+    return next_id
+
+
+@connection.connection_handler
+def edit_question(cursor, question_id, user_question):
+    cursor.execute("""
+            UPDATE question
+            SET title='{0}', message='{1}'
+            WHERE id={2}
+            """.format(user_question[0]['title'], user_question[0]['message'], question_id))
+
+@connection.connection_handler
+def delete_question(cursor, question_id):
+    cursor.execute("""
+    DELETE from question
+    WHERE id={0}
+    """.format(question_id))
+
+@connection.connection_handler
+def delete_answer(cursor, answer_id):
+    cursor.execute("""
+    DELETE FROM answer
+    WHERE id={0}
+    """.format(answer_id))
